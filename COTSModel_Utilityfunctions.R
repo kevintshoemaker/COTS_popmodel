@@ -15,6 +15,14 @@ loadPackage <- function(pkg){
 
 }
 
+loadPackages <- function(){
+  loadPackage("lhs")            # for latin hypercube sampling
+  loadPackage("RCurl")          # for loading source code from github
+  loadPackage("raster")         # for managing raster data
+  loadPackage("rgdal")          # for reading and writing all sorts of spatial data   
+  loadPackage("popbio")         # for doing basic matrix population modeling
+}
+
 source_github <- function(baseurl,scriptname) {
   # load package
   loadPackage(RCurl)
