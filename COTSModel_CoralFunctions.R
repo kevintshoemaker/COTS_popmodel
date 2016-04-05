@@ -5,13 +5,11 @@
 # 
 #  05 April 2015 -- started scripting
 
-
-##########################
-
+  ## for coral dispersal: see kinlan and Gaines paper
 
 
 
 
 
 
-
+#########################
