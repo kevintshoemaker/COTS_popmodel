@@ -34,30 +34,27 @@ COTS_StableStage <- c(0.9803, 0.0171, 0.0026)   # very approximate stable stage 
 #    - initDensityS: for every reef in the study area, a vector of initial senile adult densities
 # RETURNS:
 #    - COTSabund: spatially-structured and stage-structured COTS abundance
-#           COTSabund$J_1: matrix representing spatially structured abundance of Juvenile stage 1 individuals
-#           COTSabund$J_2: matrix representing spatially structured abundance of Juvenile stage 2 individuals
-#           COTSabund$A: matrix representing spatially structured abundance of reproductive adult individuals
-#           COTSabund$S: matrix representing spatially structured abundance of senile adult individuals
+#           COTSabund$J_1: vector representing spatially structured abundance of Juvenile stage 1 individuals
+#           COTSabund$J_2: vector representing spatially structured abundance of Juvenile stage 2 individuals
+#           COTSabund$A: vector representing spatially structured abundance of reproductive adult individuals
+#           COTSabund$S: vector representing spatially structured abundance of senile adult individuals
 #           NOTE: larvae are not considered explicitly here. 
 ###################
 
 ### for testing:
 
 
-initializeCOTSabund <- function(reefmap, initDensityA, initDensityS){
-     ### extract the size of the abundance matrix...
-  nrows <- reefmap@nrows
-  ncols <- reefmap@ncols
+initializeCOTSabund <- function(reefIDs, initDensityA, initDensityS){
+  veclength <- length(reefIDs)
   
      ### Set up the COTS abundance object
   COTSabund <- list()
-  COTSabund[['J_1']] <- matrix(0,nrow=nrows,ncol=ncols)
-  COTSabund[['J_2']] <- matrix(0,nrow=nrows,ncol=ncols)
-  COTSabund[['A']] <- matrix(0,nrow=nrows,ncol=ncols)
-  COTSabund[['S']] <- matrix(0,nrow=nrows,ncol=ncols)
+  COTSabund[['J_1']] <- numeric(veclength)
+  COTSabund[['J_2']] <- numeric(veclength)
+  COTSabund[['A']] <- numeric(veclength)
+  COTSabund[['S']] <- numeric(veclength)
   
     ### set the initial abundances: 
-  uniqueReefIDs <- unique(reefmap@data@values)[-which(is.na(unique(reefmap@data@values)))]
   nReefs <- length(uniqueReefIDs)
   r=1
   for(r in 1:nReefs){

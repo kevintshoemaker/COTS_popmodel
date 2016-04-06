@@ -38,6 +38,9 @@ if(is.na(file.info(SPATIALDATA_DIRECTORY)[1,"isdir"])) dir.create(SPATIALDATA_DI
 DATA_DIRECTORY <- paste(BASE_DIRECTORY,"\\Data",sep="")                                 # directory for storing data (CSV files)
 if(is.na(file.info(DATA_DIRECTORY)[1,"isdir"])) dir.create(DATA_DIRECTORY)
 
+ENVDATA_DIRECTORY <- paste(DATA_DIRECTORY,"\\Environmental",sep="")                                 # directory for storing data (CSV files)
+if(is.na(file.info(ENVDATA_DIRECTORY)[1,"isdir"])) dir.create(ENVDATA_DIRECTORY)
+
 FIGURES_DIRECTORY <- paste(BASE_DIRECTORY,"\\Figures\\RawFigures",sep="")               # directory for storing raw figures generated from R
 if(is.na(file.info(FIGURES_DIRECTORY)[1,"isdir"])) dir.create(FIGURES_DIRECTORY)
 
@@ -71,39 +74,81 @@ setwd(CODE_DIRECTORY)
 source("COTSModel_Utilityfunctions.R")   # load utility functions, e.g., for loading packages etc. 
 source("COTSModel_COTSfunctions.R")      # load functions for implementing COTS demography and dispersal
 source("COTSModel_Coralfunctions.R")     # load functions for implemeting coral growth/recovery and dispersal
+source("COTSModel_GISfunctions.R")     # load functions for implemeting coral growth/recovery and dispersal
 
 #############################
 #  LOAD PACKAGES
 #############################
                            # note: 'loadPackage' should install the package from CRAN automatically if it is not already installed
-   
 loadPackages()   # load all packages into the global environment
 
 ###############################
 #        LOAD SPATIAL DATA
 ###############################
 
-projection <- "+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs"
+projection <- "+proj=longlat +datum=WGS84"   #"+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs"
 
-	##########
-	# Reef ID Layer: this layer is used for generating many key parameters and many other maps
 
-setwd(SPATIALDATA_DIRECTORY)
-reef_ID <- readGDAL("reefs.asc",p4s=projection)
-reef_ID <- raster(reef_ID)
+###############################
+# READ IN ENVIRONMENTAL COVARIATES
+###############################
 
-plot(reef_ID)
+setwd(ENVDATA_DIRECTORY)
+envData <- read.table("ENV_dataGBR.txt",header=T,sep="\t")
+nrow(envData)
+    # generate a template grid
+head(envData)
 
-UNIQUEREEFIDS <- unique(reef_ID@data@values)[-which(is.na(unique(reef_ID@data@values)))]
-NREEFS <- length(UNIQUEREEFIDS)
+minx <- min(envData$x)-0.005  # farthest west
+miny <- min(envData$y)-0.005  # farthest south
+maxx <- max(envData$x)+0.005  # farthest east
+maxy <- max(envData$y)+0.005  # farthest north
 
+studyRegion <- extent(minx,maxx,miny,maxy)
+plot(studyRegion)
+
+template <- raster(ext=studyRegion,resolution=0.01,vals=NA)   # empty raster
+plot(template)
+
+length(template@data@values)    # 1,335,372 cells
+
+xcells <- (maxx-minx)/0.01
+ycells <- (maxy-miny)/0.01
+totcells <- xcells*ycells
+
+   ## rasterize an environmental variable.
+reefID <- as.numeric(envData$REEF_ID)
+ndx <- !is.na(reefID)
+reefIDraster <- rasterize(envData[,c('x','y')][ndx,], template, field=reefID[ndx])   # memory limitations
+
+plot(reefIDraster)
+
+##########
+# Reef ID Layer: this layer is used for generating many key parameters and many other maps
+
+   #reef_ID <- ReadRaster("reefs.asc",projection,plot=T)
+
+GetReefData(reefIDraster)   # harvest key data from the reef_ID layer
+
+slotNames(reefIDraster)
+?raster
+
+# read in reefs shapefile
+
+?readOGR
+
+reefdatadir <- "C:\\Users\\Kevin\\Dropbox\\CoTS_Model\\Spatial Layers\\Masked reefs"
+setwd(reefdatadir)
+GBR_polygons <- readOGR(reefdatadir,layer="GBR_reefs")
+
+plot(GBR_polygons)
 
 ###############################
 # MAKE UP DATA INPUTS
 ###############################
 
-initDensityA <- round(rnorm(nReefs,10000,1000))    # density per km2 of reef habitat
-initDensityS <- round(rnorm(nReefs,1000,100))
+initDensityA <- round(rnorm(NREEFS,10000,1000))    # density per km2 of reef habitat
+initDensityS <- round(rnorm(NREEFS,1000,100))
 
 ###############################
 # RUN COTS MODEL
