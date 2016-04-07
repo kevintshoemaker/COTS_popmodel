@@ -1,0 +1,34 @@
+---
+title: "COTS_ProjectOrganization"
+author: "Kevin Shoemaker, Sam Matthews, Camille Mellin, Damien Fordham, ..."
+date: "April 7, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+This document is intended to describe the overall project organization for constructing an R-based population model for COTS in the Great Barrier Reef. 
+
+# Dropbox: shared project resources
+All shared project resources are stored in [Dropbox](Dropbox.com). There are several key folders for storing different types of resources:
+
+## Data
+This folder is a repository for storing CSV files for reading into the R COTS modeling framework
+
+## Spatial Layers
+This folder contains all shared spatial resources. Raster layers are stored as .ASC grids, and vector layers are stored as ESRI Shapefiles.  
+
+## Figures
+This folder contains figures and plots for interpreting results. The subfolder "RawFigures" contains figures generated directly from R. Final figures may be generated using a vector graphics software such as Inkscape
+
+## R_Workspaces
+This folder contains time-stamped R workspaces (.RData files) to enable users to pick up where they left off.  
+
+
+
+# GIThub: source code
+
+
+
+

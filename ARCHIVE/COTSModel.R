@@ -8,11 +8,6 @@
 ##########################
 
 ########################
-#  TODO LIST
-
-#  - how to initialize the COTS population??? [KTS developed a crude method using reef-level densities...]
-
-########################
 
 #######################
 #   CLEAR THE WORKSPACE 
@@ -95,7 +90,7 @@ projection <- "+proj=longlat +datum=WGS84"   #"+proj=lcc +lat_1=33 +lat_2=45 +la
 
 setwd(ENVDATA_DIRECTORY)
 envData <- read.table("ENV_dataGBR.txt",header=T,sep="\t")
-nrow(envData)
+NPOPS <- nrow(envData)
     # generate a template grid
 head(envData)
 
@@ -107,8 +102,10 @@ maxy <- max(envData$y)+0.005  # farthest north
 studyRegion <- extent(minx,maxx,miny,maxy)
 plot(studyRegion)
 
-template <- raster(ext=studyRegion,resolution=0.01,vals=NA)   # empty raster
+template <- raster(ext=studyRegion,resolution=0.01,vals=0)   # empty raster
 plot(template)
+setwd(SPATIALDATA_DIRECTORY)
+writeRaster(template,filename="templateRaster.asc",format="ascii",overwrite=T)
 
 length(template@data@values)    # 1,335,372 cells
 

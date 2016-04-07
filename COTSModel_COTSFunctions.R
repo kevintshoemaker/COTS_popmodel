@@ -44,21 +44,19 @@ COTS_StableStage <- c(0.9803, 0.0171, 0.0026)   # very approximate stable stage 
 ### for testing:
 
 
-initializeCOTSabund <- function(reefIDs, initDensityA, initDensityS){
-  veclength <- length(reefIDs)
+initializeCOTSabund <- function(reefID=reefID,uniquereefIDs=UNIQUEREEFIDS,nreefs,npops,initDensityA,initDensityS){
   
      ### Set up the COTS abundance object
   COTSabund <- list()
-  COTSabund[['J_1']] <- numeric(veclength)
-  COTSabund[['J_2']] <- numeric(veclength)
-  COTSabund[['A']] <- numeric(veclength)
-  COTSabund[['S']] <- numeric(veclength)
+  COTSabund[['J_1']] <- numeric(npops)
+  COTSabund[['J_2']] <- numeric(npops)
+  COTSabund[['A']] <- numeric(npops)
+  COTSabund[['S']] <- numeric(npops)
   
     ### set the initial abundances: 
-  nReefs <- length(uniqueReefIDs)
   r=1
   for(r in 1:nReefs){
-    thisReefID <- uniqueReefIDs[r]
+    thisReefID <- reefIDs[r]
     mask <- reclassify(reefmap,rcl=c(NA,NA,0, -Inf,thisReefID-0.5,0, thisReefID-0.4,thisReefID+0.4,1, thisReefID+0.5,Inf,0))@data@values
     COTSabund[['A']] <- COTSabund[['A']] + (mask*initDensityA[r])
     COTSabund[['S']] <- COTSabund[['S']] + (mask*initDensityS[r])

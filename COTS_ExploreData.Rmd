@@ -1,0 +1,210 @@
+---
+title: "COTS Population Model: explore data"
+author: "Sam Matthew, Camille Mellin, Damien Fordham, Kevin Shoemaker, ..."
+date: "April 7, 2016"
+output: html_document
+---
+
+# Prepare the R workspace (code running behind the scenes- see the .Rmd file) 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)    # set up knitr
+
+#######################
+#   CLEAR THE WORKSPACE 
+#######################
+
+rm(list=ls())
+
+#######################
+#   SET USER 
+#######################
+
+USER = "KEVIN"
+
+#########################
+# SET PROJECT DIRECTORIES (this should be the only place where local directories should be referenced)
+#########################
+
+if(USER=="KEVIN") BASE_DIRECTORY <- "C:\\Users\\Kevin\\Dropbox\\CoTS_Model"             # NOTE: this should link to the Dropbox folder with shared project resources	                                                                        
+if(USER=="KEVIN") CODE_DIRECTORY <- "C:\\Users\\Kevin\\GIT\\COTS_popmodel"              # NOTE: code directory should be your local copy of the GitHub repository
+
+if(USER=="SAM") BASE_DIRECTORY ##<- ****FILL IN*****
+if(USER=="SAM") CODE_DIRECTORY ##<- ****FILL IN*****
+
+SPATIALDATA_DIRECTORY <- paste(BASE_DIRECTORY,"\\Spatial Layers",sep="")                          # directory for storing relevant spatial data (ASC, SHP files)
+if(is.na(file.info(SPATIALDATA_DIRECTORY)[1,"isdir"])) dir.create(SPATIALDATA_DIRECTORY)
+
+DATA_DIRECTORY <- paste(BASE_DIRECTORY,"\\Data",sep="")                                 # directory for storing data (CSV files)
+if(is.na(file.info(DATA_DIRECTORY)[1,"isdir"])) dir.create(DATA_DIRECTORY)
+
+ENVDATA_DIRECTORY <- paste(DATA_DIRECTORY,"\\Environmental",sep="")                                 # directory for storing data (CSV files)
+if(is.na(file.info(ENVDATA_DIRECTORY)[1,"isdir"])) dir.create(ENVDATA_DIRECTORY)
+
+FIGURES_DIRECTORY <- paste(BASE_DIRECTORY,"\\Figures\\RawFigures",sep="")               # directory for storing raw figures generated from R
+if(is.na(file.info(FIGURES_DIRECTORY)[1,"isdir"])) dir.create(FIGURES_DIRECTORY)
+
+RESULTS_DIRECTORY <- paste(BASE_DIRECTORY,"\\results",sep="")                           # directory for storing relevant results
+if(is.na(file.info(RESULTS_DIRECTORY)[1,"isdir"])) dir.create(RESULTS_DIRECTORY)
+
+RDATA_DIRECTORY <- paste(BASE_DIRECTORY,"\\R_Workspaces",sep="")                        # directory for storing .RData files (R workspaces and data objects)
+if(is.na(file.info(RDATA_DIRECTORY)[1,"isdir"])) dir.create(RDATA_DIRECTORY)
+
+####################
+#  LOAD FUNCTIONS AND SCRIPTS FROM SOURCE CODE (your local GitHub repository)
+#################### 
+
+setwd(CODE_DIRECTORY)
+source("COTSModel_Utilityfunctions.R")   # load utility functions, e.g., for loading packages etc. 
+#source("COTSModel_COTSfunctions.R")      # load functions for implementing COTS demography and dispersal
+#source("COTSModel_Coralfunctions.R")     # load functions for implemeting coral growth/recovery and dispersal
+source("COTSModel_GISfunctions.R")     # load functions for implemeting coral growth/recovery and dispersal
+source("COTSModel_Initialization.R")     # initialize the workspace
+
+```
+
+```{r echo=FALSE}
+cat(sprintf("The current user is %s",USER))
+```
+
+
+# COTS Population Model: objectives
+
+This population model is constructed in R, using the [RStudio](www.rstudio.com) development environment. 
+Yadda yadda **yadda** *yadda* ~~yadda~~ [yadda](www.rstudio.com)
+
+
+#  TODO LIST
+
+* how to initialize the COTS population??? [KTS developed a crude method using reef-level densities...]
+* determine how exactly the coral/cots interaction will work? 
+    + Can we get a maximal live coral cover for each grid cell? What determines this maximum
+    + We have cover for two species of coral- how does this enter and influence the model?
+    + Is the SDM just used to specify initial live coral cover? Or, does this SDM affect the
+  model in a more long-lasting way?
+
+
+# DATA DESCRIPTION
+The population model uses data of three major types: 
+
+1. GIS Rasters: 0.01 degrees (ca. 1 km) resolution. Approx 1.3 million pixels. We chose to use a 1 km resolution to represent geographic variation within the Great Barrier Reef.
+We chose this resolution because it was the coarsest resolution that could successfully capture
+the vast majority of the small reefs in the landscape.  
+2. Population-level data: XYZ dataframe containing unique information (Z1, Z2, ...) about
+each 1 km^2^ reef segment, or "population" (ca. 17k populations).  
+3. Reef-level data: XYZ dataframe containing unique information (z1, Z2, ...) about 
+each reef (variable sizes) (ca. 2k reefs)
+
+## Read in master population-level data
+
+```{r echo=FALSE}
+###############################
+# READ IN ENVIRONMENTAL COVARIATES
+###############################
+
+setwd(ENVDATA_DIRECTORY)
+envData <- read.table("ENV_dataGBR.txt",header=T,sep="\t")
+NPOPS <- nrow(envData)
+    # generate a template grid
+head(envData)
+
+```
+
+## Extract study region extent
+
+```{r}
+minx <- min(envData$x)-0.005  # farthest west
+miny <- min(envData$y)-0.005  # farthest south
+maxx <- max(envData$x)+0.005  # farthest east
+maxy <- max(envData$y)+0.005  # farthest north
+studyRegion <- extent(minx,maxx,miny,maxy)
+cat(sprintf("Western margin is %s degrees, southern margin is %s degrees, eastern margin is %s degrees, and northern margin is %s degrees",minx,miny,maxx,maxy))
+
+plot(studyRegion, main="Study Region (blank)")  
+
+```
+
+## Make template raster (to use as a template for further raster creation etc...)
+
+```{r}
+template <- raster(ext=studyRegion,resolution=0.01,vals=0)   # create empty raster
+#plot(template)
+setwd(SPATIALDATA_DIRECTORY)
+writeRaster(template,filename="templateRaster.asc",format="ascii",overwrite=T)   # write to file
+totalCells <- length(template@data@values)    # 1,335,372 cells
+
+cat(sprintf("total cells in study region raster is %s",totalCells))
+```
+
+## Make reef ID raster
+This GIS layer will be used in several downstream operations 
+
+```{r}
+   ## rasterize an environmental variable.
+reefID <- as.numeric(envData$REEF_ID)
+ndx <- !is.na(reefID)
+reefIDraster <- rasterize(envData[,c('x','y')][ndx,], template, field=reefID[ndx])   # memory limitations
+
+plot(reefIDraster)
+```
+
+
+## Visualize the reef polygon layer
+
+```{r}
+reefdatadir <- paste(SPATIALDATA_DIRECTORY,"\\Masked reefs",sep="")   
+setwd(reefdatadir)
+GBR_polygons <- readOGR(reefdatadir,layer="GBR_reefs")
+
+plot(GBR_polygons)
+```
+
+## Compute the percent reef for each 1km raster cell
+Camille generated a raster at 100m resolution from the GBR reef polygon layer. Here we use this new layer to compute the percent of each 1km raster cell that comprises actual reef. 
+
+```{r}
+reefraster <- ReadRaster("reefraster2.asc",projection=projection,plot=F)
+#plot(reefraster)
+reefraster <- reclassify(reefraster,rcl=c(NA,NA,0, -Inf,0.5,0, 0.6,Inf,1))  # temporary layer: reclassify to binary
+compute_percentReef <- function(t,na.rm=TRUE) sum(t,na.rm)  ## aggregation function
+reefpercent <- aggregate(reefraster, fact=10, fun=compute_percentReef, expand=TRUE, na.rm=TRUE) 
+reefpercent <- reefpercent-1
+plot(reefpercent)
+setwd(SPATIALDATA_DIRECTORY)
+writeRaster(reefpercent,filename="reefPercentRaster.asc",format="ascii",overwrite=T)   # write to file
+
+#### determine reef percent for each cell of interest in the 1km grid
+  # <- crop(x=reefpercent, y=template)
+#reefpercent <- raster::resample(x=reefpercent, y=template, method="bilinear")        # first resample to make sure the grids line up properly (NOTE: need to specify from resample package, not popbio package!)
+?extract
+envData[,'PercentReef'] <- extract(reefpercent,envData[,c('x','y')])   # add a new column to the envData (XYZ format)
+
+
+```
+
+### Initial coral cover (GIS, population-level)
+This layer is derived from several sources: XXX, XXX, XXX 
+
+
+
+
+# RMARKDOWN EXAMPLES- FOR REFERENCE
+inline equation: $A = \pi*r^{2}$
+
+Here is an example of embedded R code:
+
+```{r}
+a<-2+2
+a
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
