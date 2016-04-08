@@ -1,46 +1,16 @@
----
-title: "COTS_ProjectOrganization"
-author: "Kevin Shoemaker, Sam Matthews, Camille Mellin, Damien Fordham, ..."
-date: "April 7, 2016"
-output: html_document
----
+##########################
+#  R script: prepare workspace for modeling COTS outbreaks in the Great Barrier Reef 
+#
+#  Authors: Kevin Shoemaker, Sam Matthews, Camille Mellin, Damien Fordham
+#  
+#  ***IMPORTANT*** This is the ONLY script where you should need to reference local file trees. All other
+#                  subsequent scripts should be able to be run without referencing user-specific directories
+# 
+#  08 April 2015 -- started scripting
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-This document is intended to describe the overall project organization for constructing an R-based population model for COTS in the Great Barrier Reef. 
-
-# Dropbox: shared project resources
-All shared project resources are stored in [Dropbox](www.Dropbox.com). There are several key folders for storing different types of resources that are read into the R-based model or produced as outputs from the R-based model. 
-
-## Data
-This folder is a repository for storing CSV files for reading into the R COTS modeling framework. Key variables for cross-referencing data files include:
-
-* PID (population ID): a unique ID for each 1 km grid cell containing some coral reef.
-* RID (reef ID): a unique ID for each separate reef in the Great Barrier Reef.
-
-## Spatial Layers
-This folder contains all shared spatial resources. Raster layers are stored as .ASC grids, and vector layers are stored as ESRI Shapefiles. Note that raster layers are stored directly in the "Spatial layers" folder, but shapefiles (which comprise multiple component files) are stored in subfolders. Key spatial layers include:
-
-* GBR_reefs: Shapefile indicating the locations and IDs of all coral reefs in the GBR
-* templateRaster.asc: ascii raster file containing no data but indicating the proper grid parameters for the study area (extent and resolution)
-* reefPercentRaster.asc: ascii raster file indicating, for each pixel, the percent of coral reef coverage
-
-## Figures
-This folder contains figures and plots for interpreting results. The subfolder "RawFigures" contains figures generated directly from R. Final figures may be generated using a vector graphics software such as Inkscape. 
-
-## R_Workspaces
-This folder contains time-stamped R workspaces (.RData files) to enable users to pick up where they left off.  
+##########################
 
 
-
-# GIThub: source code
-We are using [GIThub](github.com) for version control for all source code. The desktop software can be downloaded [here](https://desktop.github.com/)
-
-
-NOTE: before any project code can be run, the following r script must be run, to ensure that R knows where to find the resource files and source code files, and to load all functions and libraries associated with this project. 
-
-```{r eval=FALSE}
 #######################
 #   CLEAR THE WORKSPACE 
 #######################
@@ -52,6 +22,22 @@ rm(list=ls())
 #######################
 
 USER = "KEVIN"
+
+
+####################
+#  SET GLOBAL VARIABLES  (USER SPECIFIED PARAMS)
+####################
+
+NREPS <- 1      
+NYEARS <- 10
+NSEASONS <- 2
+SEASONS <- c("summer","winter")
+
+VERBOSE <- TRUE        # flag whether functions should return detailed information
+DEBUG <- TRUE          # flag whether to output debug files etc. 
+
+projection <- "+proj=longlat +datum=WGS84"   #"+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs"
+
 
 #########################
 # SET PROJECT DIRECTORIES (this should be the only place where local directories should be referenced)
@@ -81,6 +67,8 @@ if(is.na(file.info(RESULTS_DIRECTORY)[1,"isdir"])) dir.create(RESULTS_DIRECTORY)
 RDATA_DIRECTORY <- paste(BASE_DIRECTORY,"\\R_Workspaces",sep="")                        # directory for storing .RData files (R workspaces and data objects)
 if(is.na(file.info(RDATA_DIRECTORY)[1,"isdir"])) dir.create(RDATA_DIRECTORY)
 
+cat(sprintf("The current user is %s",USER))
+
 ####################
 #  LOAD FUNCTIONS AND SCRIPTS FROM SOURCE CODE (your local GitHub repository)
 #################### 
@@ -90,6 +78,23 @@ source("COTSModel_Utilityfunctions.R")   # load utility functions, e.g., for loa
 #source("COTSModel_COTSfunctions.R")      # load functions for implementing COTS demography and dispersal
 #source("COTSModel_Coralfunctions.R")     # load functions for implemeting coral growth/recovery and dispersal
 source("COTSModel_GISfunctions.R")     # load functions for implemeting coral growth/recovery and dispersal
-source("COTSModel_Initialization.R")     # initialize the workspace
-```
+
+#############################
+#  LOAD PACKAGES
+#############################
+# note: 'loadPackage' should install the package from CRAN automatically if it is not already installed
+loadPackages()   # load all packages into the global environment
+
+
+
+# save global params
+saveWorkspace(filename="GlobalParams.RData")
+
+
+#############
+#  END SCRIPT
+#############
+
+
+
 

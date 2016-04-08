@@ -10,21 +10,6 @@
 ##########################
 
 
-####################
-#  GLOBAL PARAMETERS  (USER SPECIFIED PARAMS)
-####################
-
-NREPS <- 1      
-NYEARS <- 10
-NSEASONS <- 2
-SEASONS <- c("summer","winter")
-
-VERBOSE <- TRUE        # flag whether functions should return detailed information
-DEBUG <- TRUE          # flag whether to output debug files etc. 
-
-# save global params
-setwd(RDATA_DIRECTORY)
-save(NREPS,NYEARS,NSEASONS,SEASONS,file="GlobalParams.RData")
 
 
 #############################

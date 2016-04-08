@@ -70,18 +70,27 @@ img {
 <p>This document is intended to describe the overall project organization for constructing an R-based population model for COTS in the Great Barrier Reef.</p>
 <div id="dropbox-shared-project-resources" class="section level1">
 <h1>Dropbox: shared project resources</h1>
-<p>All shared project resources are stored in <a href="www.Dropbox.com">Dropbox</a>. There are several key folders for storing different types of resources:</p>
+<p>All shared project resources are stored in <a href="www.Dropbox.com">Dropbox</a>. There are several key folders for storing different types of resources that are read into the R-based model or produced as outputs from the R-based model.</p>
 <div id="data" class="section level2">
 <h2>Data</h2>
-<p>This folder is a repository for storing CSV files for reading into the R COTS modeling framework</p>
+<p>This folder is a repository for storing CSV files for reading into the R COTS modeling framework. Key variables for cross-referencing data files include:</p>
+<ul>
+<li>PID (population ID): a unique ID for each 1 km grid cell containing some coral reef.</li>
+<li>RID (reef ID): a unique ID for each separate reef in the Great Barrier Reef.</li>
+</ul>
 </div>
 <div id="spatial-layers" class="section level2">
 <h2>Spatial Layers</h2>
-<p>This folder contains all shared spatial resources. Raster layers are stored as .ASC grids, and vector layers are stored as ESRI Shapefiles.</p>
+<p>This folder contains all shared spatial resources. Raster layers are stored as .ASC grids, and vector layers are stored as ESRI Shapefiles. Note that raster layers are stored directly in the “Spatial layers” folder, but shapefiles (which comprise multiple component files) are stored in subfolders. Key spatial layers include:</p>
+<ul>
+<li>GBR_reefs: Shapefile indicating the locations and IDs of all coral reefs in the GBR</li>
+<li>templateRaster.asc: ascii raster file containing no data but indicating the proper grid parameters for the study area (extent and resolution)</li>
+<li>reefPercentRaster.asc: ascii raster file indicating, for each pixel, the percent of coral reef coverage</li>
+</ul>
 </div>
 <div id="figures" class="section level2">
 <h2>Figures</h2>
-<p>This folder contains figures and plots for interpreting results. The subfolder “RawFigures” contains figures generated directly from R. Final figures may be generated using a vector graphics software such as Inkscape</p>
+<p>This folder contains figures and plots for interpreting results. The subfolder “RawFigures” contains figures generated directly from R. Final figures may be generated using a vector graphics software such as Inkscape.</p>
 </div>
 <div id="r_workspaces" class="section level2">
 <h2>R_Workspaces</h2>

@@ -5,6 +5,8 @@ date: "April 7, 2016"
 output: html_document
 ---
 
+This RMarkdown document is intended to explore relevant data and showcase the operations used in preparing data for entry into the COTS modeling framework. Note that the most recent versions of the project R scripts are stored in .R files in GIThub (the code in this document may not represent the most recently updated version)
+
 # Prepare the R workspace (code running behind the scenes- see the .Rmd file) 
 
 ```{r setup, include=FALSE}
@@ -150,13 +152,10 @@ plot(reefIDraster)
 
 
 ## Visualize the reef polygon layer
+This uses the "readShapefile" GIS utility function (in "COTSModel_GISFunctions.R")
 
 ```{r}
-reefdatadir <- paste(SPATIALDATA_DIRECTORY,"\\Masked reefs",sep="")   
-setwd(reefdatadir)
-GBR_polygons <- readOGR(reefdatadir,layer="GBR_reefs")
-
-plot(GBR_polygons)
+GBR_polygons <- readShapefile("GBR_reefs",plot=T)
 ```
 
 ## Compute the percent reef for each 1km raster cell

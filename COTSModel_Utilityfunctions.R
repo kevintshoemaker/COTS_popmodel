@@ -4,9 +4,17 @@
 #################################### 
 
 
+###################
+# loadPackages: GENERIC FUNCTION FOR INSTALLING/LOADING PACKAGES FROM CRAN
 ########################################
-## GENERIC FUNCTION FOR INSTALLING/LOADING PACKAGES FROM CRAN
-########################################
+##########
+# OBJECTIVE:
+#    loads a package from CRAN into the global environment.  
+# PARAMS:
+#    - none
+# RETURNS:
+#    - nothing. results in libraries being loaded into the global environment 
+###################
 
 loadPackage <- function(pkg){
 
@@ -15,6 +23,18 @@ loadPackage <- function(pkg){
 
 }
 
+###################
+# loadPackages
+##########
+# OBJECTIVE:
+#    loads all necessary packages into the global environment. Makes use of the 
+#    "loadPackage" utility function.  
+# PARAMS:
+#    - none
+# RETURNS:
+#    - nothing. results in libraries being loaded into the global environment 
+###################
+
 loadPackages <- function(){
   loadPackage("lhs")            # for latin hypercube sampling
   loadPackage("RCurl")          # for loading source code from github
@@ -22,6 +42,19 @@ loadPackages <- function(){
   loadPackage("rgdal")          # for reading and writing all sorts of spatial data   
   loadPackage("popbio")         # for doing basic matrix population modeling
 }
+
+
+###################
+# source_github
+##########
+# OBJECTIVE:
+#    Read source code from a GIThub repository 
+# PARAMS:
+#    - baseurl: URL for the repository
+#    - scriptname: name of the script/library to load
+# RETURNS:
+#    - nothing. loads functions from GitHub 
+###################
 
 source_github <- function(baseurl,scriptname) {
   # load package
@@ -38,6 +71,23 @@ source_github <- function(baseurl,scriptname) {
 }
 
 
+###################
+# saveWorkspace
+##########
+# OBJECTIVE:
+#    save the current workspace or a set of R objects on the workspace 
+# PARAMS:
+#    - objNames: (optional) list of names of objects to save.
+# RETURNS:
+#    - nothing. saves an RData file to the R_Workspaces directory in Dropbox 
+###################
+
+saveWorkspace <- function(objNames=NULL,filename="R_workspace"){
+  if(is.null(objNames)) objNames = ls(all = TRUE,name=.GlobalEnv)
+  setwd(RDATA_DIRECTORY)
+  filename <- sprintf("%s_%s.RData",filename,Sys.Date())
+  save(list = objNames, file = filename)
+}
  
 
 
