@@ -1,0 +1,17 @@
+{
+    "contents" : "##############################################\n###  GIS functions for the COTS population model\n#################################### \n\n\n\n###################\n#  ReadRaster\n##########\n# OBJECTIVE:\n#    Generic function for reading in ascii raster layers for COTS population model.\n#    uses the \"raster\" package.\n# PARAMS:\n#    - rastername: name of the raster layer to be loaded into memory (must be .ASC file)\n#        NOTE: this raster layer must be stored in the spatial layers project resource file in Dropbox\n#    - projection: cartographic projection in PROJ4 style\n#    - plot: logical (T or F) indicating whether the layer should be plotted\n# RETURNS:\n#    - raster object (see \"raster\" package for more details)\n###################\n\nReadRaster <- function(rastername,projection=projection,plot=F){\n  setwd(SPATIALDATA_DIRECTORY)\n  newraster <- readGDAL(rastername,p4s=projection)\n  newraster <- raster(newraster)\n  if(plot) plot(newraster)\n  return(newraster)\n}\n\n###################\n#  readShapefile\n##########\n# OBJECTIVE:\n#    Generic function for reading in ESRI shapefile layers for COTS population model.\n#    uses the \"raster\" package.\n# PARAMS:\n#    - shapefilename: name of the shapefile layer to be loaded into memory\n#    - projection: cartographic projection in PROJ4 style\n#    - plot: logical (T or F) indicating whether the layer should be plotted\n# RETURNS:\n#    - Spatial points, lines, or polygon object (see \"sp\" package for more details)\n###################\nreadShapefile <- function(shapefilename,projection=projection,plot=FALSE){\n  setwd(SPATIALDATA_DIRECTORY)\n  shapefilename=gsub(\".shp\",\"\",shapefilename)\n  datadir <- sprintf(\"%s\\\\%s\",SPATIALDATA_DIRECTORY,shapefilename)   \n  setwd(datadir)\n  newshapefile <- readOGR(datadir,layer=shapefilename)\n  if(plot) plot(newshapefile)\n  return(newshapefile)\n}\n\n\n\n\n\n",
+    "created" : 1475007786983.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1947256138",
+    "id" : "F7C4446F",
+    "lastKnownWriteTime" : 1474935393,
+    "path" : "~/GitHub/COTS_popmodel/COTSModel_GISFunctions.R",
+    "project_path" : "COTSModel_GISFunctions.R",
+    "properties" : {
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

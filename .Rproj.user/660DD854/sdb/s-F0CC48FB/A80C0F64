@@ -1,0 +1,17 @@
+{
+    "contents" : "###############################\n# RUN COTS MODEL\n###############################\n\nCOTSabund <- initializeCOTSabund(,...)      # initialize the COTS abundance object (for year 0) \ninitializeCoralCover(,...)    # initialize the coral cover object (for year 0)\n\nfor(year in 1:NYEARS){                  # loop through years\n  for(season in SEASONS){               # loop through seasons\n    doCOTSDispersal(season,COTSabund,...)\n    doCOTSDemography(season,COTSabund,CoralCover...)\n    doCoralDispersal(season,...)\n    doCoralDisturbance(season,COTSabund,...)           # coral disturbance processes, including from COTS\n    \n    collectResults(year,season,COTSabund,CoralCover)   # collect results for analysis and visualization\n  }\n}",
+    "created" : 1474994336586.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3866472226",
+    "id" : "A80C0F64",
+    "lastKnownWriteTime" : 1474935393,
+    "path" : "~/GitHub/COTS_popmodel/COTSModel_RunModel.R",
+    "project_path" : "COTSModel_RunModel.R",
+    "properties" : {
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
