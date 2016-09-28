@@ -36,7 +36,7 @@ SEASONS <- c("summer","winter")
 VERBOSE <- TRUE        # flag whether functions should return detailed information
 DEBUG <- TRUE          # flag whether to output debug files etc. 
 
-projection <- "+proj=longlat +datum=WGS84"   #"+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs"
+projection <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"   #"+proj=lcc +lat_1=33 +lat_2=45 +lat_0=39 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs"
 
 
 #########################

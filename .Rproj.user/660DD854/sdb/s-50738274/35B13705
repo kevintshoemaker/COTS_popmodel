@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1475091323698.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "35B13705",
+    "lastKnownWriteTime" : 28429440806879331,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "itwzexotnv",
+        "caption" : "coord.matches",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=coord.matches&cache_key=itwzexotnv",
+        "displayedObservations" : 10025,
+        "environment" : "",
+        "object" : "coord.matches",
+        "totalObservations" : 10025,
+        "variables" : 5
+    },
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

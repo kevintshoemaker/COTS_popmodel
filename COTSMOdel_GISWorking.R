@@ -130,13 +130,13 @@ envpoints <- SpatialPoints(coords = envcoords, proj4string = CRS(projection))
 
 
 plotzoom <- function (zoomextent) {
-
   
-plot(reefpercent, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]))
-#plot(reefraster001, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]), add = TRUE)
-plot(reefshape, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]), add = TRUE)
-points(sp, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]), pch=20, col="blue", cex=0.5)
-points(envpoints, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]), pch=17, col="red", cex=0.5)
+  
+  plot(reefpercent, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]))
+  #plot(reefraster001, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]), add = TRUE)
+  plot(reefshape, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]), add = TRUE)
+  points(sp, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]), pch=20, col="blue", cex=0.5)
+  points(envpoints, xlim=c(zoomextent[1],zoomextent[2]), ylim=c(zoomextent[3],zoomextent[4]), pch=17, col="red", cex=0.5)
 }
 windows()
 plotzoom(c(151.4, 151.8, -23.03,-22.55))
