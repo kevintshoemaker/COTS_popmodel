@@ -1,7 +1,15 @@
 ########################
 # Functions for modeling COTS demography and dispersal
 ########################
-
+#   Authors: Kevin Shoemaker, Sam Matthews
+#
+#   28 September 2016 - Updated initializeCoTSabund to matrix form
+#                     - started scripting mortality, fecundity, dispersal functions
+#
+#   THINGS TO DO:
+#         1. Set initial adult densities (use 1996 to line up with coral model) - check dates on report year
+#         2. Write out params of m,f and d functions
+#         3. Do we want to have CoTS pops at the reef level
 
 
 ###################
@@ -42,35 +50,65 @@ COTS_StableStage <- c(0.9803, 0.0171, 0.0026)   # very approximate stable stage 
 ###################
 
 ### for testing:
+### set small extent using crop function for testing
 
-
-initializeCOTSabund <- function(reefID=reefID,uniquereefIDs=UNIQUEREEFIDS,nreefs,npops,initDensityA,initDensityS){
+initializeCOTSabund <- function(reefID=reefID,uniquereefIDs=UNIQUEREEFIDS, stagenames, nstages, nreefs,npops,initDensityA,initDensityS){
   
      ### Set up the COTS abundance object
-  COTSabund <- list()
-  COTSabund[['J_1']] <- numeric(npops)
-  COTSabund[['J_2']] <- numeric(npops)
-  COTSabund[['A']] <- numeric(npops)
-  COTSabund[['S']] <- numeric(npops)
+  COTSabund <- matrix(0,nrow=npops, ncol=nstages)
+  colnames(COTSabund) <- stagenames
+
   
     ### set the initial abundances: 
   r=1
   for(r in 1:nReefs){
     thisReefID <- reefIDs[r]
     mask <- reclassify(reefmap,rcl=c(NA,NA,0, -Inf,thisReefID-0.5,0, thisReefID-0.4,thisReefID+0.4,1, thisReefID+0.5,Inf,0))@data@values
-    COTSabund[['A']] <- COTSabund[['A']] + (mask*initDensityA[r])
-    COTSabund[['S']] <- COTSabund[['S']] + (mask*initDensityS[r])
+    COTSabund[,'A'] <- COTSabund[,'A'] + (mask*initDensityA[r])#use interpolated layers as starting point
+    COTSabund[,'S'] <- COTSabund[,'S'] + (mask*initDensityS[r])
     totAdult <- initDensityA[r] + initDensityS[r]  
-    densJ2 <- totAdult * (COTS_StableStage[2]/COTS_StableStage[3])
+    densJ2 <- totAdult * (COTS_StableStage[2]/COTS_StableStage[3])#correcting based on stable stage ratios
     densJ1 <- totAdult * (COTS_StableStage[1]/COTS_StableStage[3])
-    COTSabund[['J_1']] <- COTSabund[['J_1']] + (mask*densJ1)
-    COTSabund[['J_2']] <- COTSabund[['J_2']] + (mask*densJ2)
+    COTSabund[,'J_1'] <- COTSabund[,'J_1'] + (mask*densJ1)
+    COTSabund[,'J_2'] <- COTSabund[,'J_2'] + (mask*densJ2)
   }
 }
+    
+###################
+# CoTS_Mortality
+##########
+# OBJECTIVE:
+#    
+# PARAMS:
+#    
+# RETURNS: 
+#     - newCOTSabund: COTS abund updated for stage specific mortality
+#     
+###################
 
+###################
+# CoTS_Fecundity
+##########
+# OBJECTIVE:
+#    
+# PARAMS:
+#    
+# RETURNS:
+#     - TotalLarvae: Total larvae produced per grid cell
+#     
+###################
 
-
-
+###################
+# CoTS_Dispersal
+##########
+# OBJECTIVE:
+#    
+# PARAMS:
+#    
+# RETURNS:
+#     - 
+#     
+###################
 
 ####################
 ### COTS SANDBOX: for testing, etc.

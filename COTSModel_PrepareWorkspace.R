@@ -21,7 +21,7 @@ rm(list=ls())
 #   SET USER 
 #######################
 
-USER = "KEVIN"
+USER = "SAM"
 
 
 ####################
@@ -46,8 +46,8 @@ projection <- "+proj=longlat +datum=WGS84"   #"+proj=lcc +lat_1=33 +lat_2=45 +la
 if(USER=="KEVIN") BASE_DIRECTORY <- "C:\\Users\\Kevin\\Dropbox\\CoTS_Model"             # NOTE: this should link to the Dropbox folder with shared project resources	                                                                        
 if(USER=="KEVIN") CODE_DIRECTORY <- "C:\\Users\\Kevin\\GIT\\COTS_popmodel"              # NOTE: code directory should be your local copy of the GitHub repository
 
-if(USER=="SAM") BASE_DIRECTORY ##<- ****FILL IN*****
-if(USER=="SAM") CODE_DIRECTORY ##<- ****FILL IN*****
+if(USER=="SAM") BASE_DIRECTORY <- "C:\\Users\\jc312264\\Dropbox\\CoTS_Model"
+if(USER=="SAM") CODE_DIRECTORY <- "C:\\Users\\jc312264\\Documents\\GitHub\\COTS_popmodel"
 
 SPATIALDATA_DIRECTORY <- paste(BASE_DIRECTORY,"\\Spatial Layers",sep="")                          # directory for storing relevant spatial data (ASC, SHP files)
 if(is.na(file.info(SPATIALDATA_DIRECTORY)[1,"isdir"])) dir.create(SPATIALDATA_DIRECTORY)

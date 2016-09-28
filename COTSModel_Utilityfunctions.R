@@ -41,7 +41,9 @@ loadPackages <- function(){
   loadPackage("raster")         # for managing raster data
   loadPackage("rgdal")          # for reading and writing all sorts of spatial data   
   loadPackage("popbio")         # for doing basic matrix population modeling
-}
+  loadPackage("tidyverse")      # data manipulation
+  loadPackage("rgeos")          # geometry applications
+  }
 
 
 ###################
