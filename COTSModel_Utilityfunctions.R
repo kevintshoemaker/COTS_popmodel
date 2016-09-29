@@ -43,6 +43,10 @@ loadPackages <- function(){
   loadPackage("popbio")         # for doing basic matrix population modeling
   loadPackage("tidyverse")      # data manipulation
   loadPackage("rgeos")          # geometry applications
+  loadPackage("plyr")           # data wrangling
+  loadPackage("dplyr")          # data wrangling
+  loadPackage("reshape2")       # data wrangling
+  loadPackage("gstat")          # performing interpolation
   }
 
 

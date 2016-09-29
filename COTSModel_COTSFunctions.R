@@ -38,8 +38,14 @@ COTS_StableStage <- c(0.9803, 0.0171, 0.0026)   # very approximate stable stage 
 #    generate an object for storing the COTS abundance in each pixel. 
 # PARAMS:
 #    - reefmap: raster template for the study region: NA outside of reefs, reef ID value within reefs 
-#    - initDensityA: for every reef in the study area, a vector of initial adult densities
-#    - initDensityS: for every reef in the study area, a vector of initial senile adult densities
+#    - PopData: data frame containiing PIXEL ID's, percent reef cover and environ vriable
+#    - COTSInterp: txt file containing interpolated values of COTS Manta tow, giving a value for CoTS density
+#    - Year: Which year we are using as our starting values
+#    - Detectability: detectability of adult CoTS from MAnata tow surveys
+#    - stagenames: vector of stagenames eg J1, J2, A1
+#    - nstages: number of stages
+#    - nreefs: number of reefs in simulation
+#    - npops: number of separate populations - initially using every reef pixel as a reef
 # RETURNS:
 #    - COTSabund: spatially-structured and stage-structured COTS abundance
 #           COTSabund$J_1: vector representing spatially structured abundance of Juvenile stage 1 individuals
@@ -52,27 +58,33 @@ COTS_StableStage <- c(0.9803, 0.0171, 0.0026)   # very approximate stable stage 
 ### for testing:
 ### set small extent using crop function for testing
 
-initializeCOTSabund <- function(reefID=reefID,uniquereefIDs=UNIQUEREEFIDS, stagenames, nstages, nreefs,npops,initDensityA,initDensityS){
+## NB Substantial coral mortality at 1,500 CoTS/km2 (=0.22/manta tow)
+1500*(100/22)
+initializeCOTSabund <- function(reefmap, PopData, COTSInterp, Year, stagenames, nstages, nreefs,npops,initDensityA,initDensityS){
   
      ### Set up the COTS abundance object
   COTSabund <- matrix(0,nrow=npops, ncol=nstages)
   colnames(COTSabund) <- stagenames
-
+  nreefs <- length(unique(PopData$REEF_ID))
+  npops <- length(PopData$PIXELID)
   
     ### set the initial abundances: 
   r=1
   for(r in 1:nReefs){
     thisReefID <- reefIDs[r]
-    mask <- reclassify(reefmap,rcl=c(NA,NA,0, -Inf,thisReefID-0.5,0, thisReefID-0.4,thisReefID+0.4,1, thisReefID+0.5,Inf,0))@data@values
-    COTSabund[,'A'] <- COTSabund[,'A'] + (mask*initDensityA[r])#use interpolated layers as starting point
-    COTSabund[,'S'] <- COTSabund[,'S'] + (mask*initDensityS[r])
-    totAdult <- initDensityA[r] + initDensityS[r]  
-    densJ2 <- totAdult * (COTS_StableStage[2]/COTS_StableStage[3])#correcting based on stable stage ratios
-    densJ1 <- totAdult * (COTS_StableStage[1]/COTS_StableStage[3])
-    COTSabund[,'J_1'] <- COTSabund[,'J_1'] + (mask*densJ1)
-    COTSabund[,'J_2'] <- COTSabund[,'J_2'] + (mask*densJ2)
+    #mask <- reclassify(reefmap,rcl=c(NA,NA,0, -Inf,thisReefID-0.5,0, thisReefID-0.4,thisReefID+0.4,1, thisReefID+0.5,Inf,0))@data@values
+    COTSabund[,'A'] <- COTSInterp$Year * 1500 * (ReefPercent/100)   #need to multiply by function from observations to density
+    #COTSabund[,'A'] <- COTSabund[,'A'] + (mask*initDensityA[r])#use interpolated layers as starting point
+    #COTSabund[,'S'] <- COTSabund[,'S'] + (mask*initDensityS[r])
+    #totAdult <- initDensityA[r] + initDensityS[r]  
+    #densJ2 <- totAdult * (COTS_StableStage[2]/COTS_StableStage[3])#correcting based on stable stage ratios
+    #densJ1 <- totAdult * (COTS_StableStage[1]/COTS_StableStage[3])
+    COTSabund[,'J_2'] <- COTSabund[,'A'] * (COTS_StableStage[2]/COTS_StableStage[3])
+    COTSabund[,'J_1'] <- COTSabund[,'A'] * (COTS_StableStage[1]/COTS_StableStage[3])
   }
 }
+
+### I NEED TO REDO INTERPOLATIONS TO PUT INTO THE REGULAR GRID
     
 ###################
 # CoTS_Mortality
