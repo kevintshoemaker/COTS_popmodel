@@ -55,78 +55,174 @@ COTS_StableStage <- c(0.9803, 0.0171, 0.0026)   # very approximate stable stage 
 #           NOTE: larvae are not considered explicitly here. 
 ###################
 
-### for testing:
-### set small extent using crop function for testing
+setwd(DATA_DIRECTORY)
+PopData <- read.table("PopData.txt", header = TRUE, sep = "\t")
+COTSInterp <- read.table("COTS_Interpolated.txt", header = TRUE, sep = "\t")
 
-## NB Substantial coral mortality at 1,500 CoTS/km2 (=0.22/manta tow)
-1500*(100/22)
-initializeCOTSabund <- function(reefmap, PopData, COTSInterp, Year, stagenames, nstages, nreefs,npops,initDensityA,initDensityS){
+stagenames <- c('J_1', 'J_2', 'A')
+
+initializeCOTSabund <- function(PopData, COTSInterp, Year, stagenames, COTS_StableStage){
   
-     ### Set up the COTS abundance object
+  ### set NA Values in interpolation to 0
+  COTSInterp[is.na(COTSInterp)] <- 0
+  
+  npops <- length(PopData[,1])
+  nstages <- length(stagenames)
+  
+  ### Set up the COTS abundance object
   COTSabund <- matrix(0,nrow=npops, ncol=nstages)
   colnames(COTSabund) <- stagenames
-  nreefs <- length(unique(PopData$REEF_ID))
-  npops <- length(PopData$PIXELID)
   
-    ### set the initial abundances: 
-  r=1
-  for(r in 1:nReefs){
-    thisReefID <- reefIDs[r]
-    #mask <- reclassify(reefmap,rcl=c(NA,NA,0, -Inf,thisReefID-0.5,0, thisReefID-0.4,thisReefID+0.4,1, thisReefID+0.5,Inf,0))@data@values
-    COTSabund[,'A'] <- COTSInterp$Year * 1500 * (ReefPercent/100)   #need to multiply by function from observations to density
-    #COTSabund[,'A'] <- COTSabund[,'A'] + (mask*initDensityA[r])#use interpolated layers as starting point
-    #COTSabund[,'S'] <- COTSabund[,'S'] + (mask*initDensityS[r])
-    #totAdult <- initDensityA[r] + initDensityS[r]  
-    #densJ2 <- totAdult * (COTS_StableStage[2]/COTS_StableStage[3])#correcting based on stable stage ratios
-    #densJ1 <- totAdult * (COTS_StableStage[1]/COTS_StableStage[3])
-    COTSabund[,'J_2'] <- COTSabund[,'A'] * (COTS_StableStage[2]/COTS_StableStage[3])
-    COTSabund[,'J_1'] <- COTSabund[,'A'] * (COTS_StableStage[1]/COTS_StableStage[3])
-  }
+  ### Set up reference for year
+  colname <- paste('X', Year, sep="")
+  
+  ### Update abundances based from interpolated manta tow data
+  COTSabund[,'A'] <- COTSInterp[,colname] * 1500 * (PopData$reefpercent/100)   #need to multiply by function from observations to density
+  COTSabund[,'J_2'] <- COTSabund[,'A'] * (COTS_StableStage[2]/COTS_StableStage[3])
+  COTSabund[,'J_1'] <- COTSabund[,'A'] * (COTS_StableStage[1]/COTS_StableStage[3])
+  return(COTSabund)
 }
 
-### I NEED TO REDO INTERPOLATIONS TO PUT INTO THE REGULAR GRID
+initCOTS <- initializeCOTSabund(PopData = PopData, COTSInterp = COTSInterp, Year=1996, stagenames, COTS_StableStage = COTS_StableStage)
+
     
 ###################
-# CoTS_Mortality
+# CoTS_StageTransition
 ##########
-# OBJECTIVE:
+# OBJECTIVE: Transition all individuals through life stages
 #    
-# PARAMS:
+# PARAMS: 
+#     - COTSabund: Matrix of CoTS abundances for which to transition
+#     - COTSmort: named Vector of natural mortality rates for each stage
+#     - COTSremain: named Vector of proportions of individuals that remain in current life stage
 #    
 # RETURNS: 
-#     - newCOTSabund: COTS abund updated for stage specific mortality
+#     - newCOTSabund: COTS abund updated after 6 month time step
 #     
 ###################
+
+COTSmort <- c(0.7,0.4,0.1)
+names(COTSmort) <- stagenames
+
+COTSremain <- c(0.02,0.2,1) # proportion remianing in each life stage --> we can make this a function of resource
+names(COTSremain) <- stagenames
+
+COTS_StageTransition <- function(COTSabund, COTSmort, COTSremain) {
+  
+  #Set up matrices
+  newCOTSabund <- matrix(0,nrow=nrow(COTSabund), ncol=ncol(COTSabund))
+  colnames(newCOTSabund) <- colnames(COTSabund)
+  COTS_Mort <- matrix(0,nrow=nrow(COTSabund), ncol=ncol(COTSabund))
+  colnames(COTS_Mort) <- colnames(COTSabund)
+  COTS_Remain <- matrix(0,nrow=nrow(COTSabund), ncol=ncol(COTSabund))
+  colnames(COTS_Remain) <- colnames(COTSabund)
+  COTS_Trans <- matrix(0,nrow=nrow(COTSabund), ncol=ncol(COTSabund))
+  colnames(COTS_Trans) <- colnames(COTSabund)
+  
+  # apply mortality
+  COTS_Mort <- sweep(COTSabund,MARGIN=2,COTSmort,`*`)
+  # update abundance
+  newCOTSabund <- COTSabund - COTS_Mort
+  
+  # number of COTS remaining and transitioning for each stage based on post-mortality abundaces
+  COTS_Remain <- sweep(newCOTSabund,MARGIN=2,COTSremain,`*`)
+  COTS_Trans <- sweep(newCOTSabund,MARGIN=2,1-COTSremain,`*`)
+  
+  # update newCOTSabund
+  newCOTSabund[, 'J_1'] <- COTS_Remain[,'J_1']
+  newCOTSabund[, 'J_2'] <- COTS_Remain[,'J_2'] + COTS_Trans[,'J_1']
+  newCOTSabund[, 'A'] <- COTS_Remain[,'A'] + COTS_Trans[,'J_2']
+  return(newCOTSabund)
+}
+
+t1 <- COTS_StageTransition(COTSabund = initCOTS, COTSmort = COTSmort, COTSremain = COTSremain)
+
+head(initCOTS)
+head(t1)
 
 ###################
 # CoTS_Fecundity
 ##########
-# OBJECTIVE:
+# OBJECTIVE: 1. Assume a size distribution amongst adults and then sample diameters
+#            2. Convert diameter to mass 
+#            3. Convert mass to eggs
+#            4. Multiply total eggs by connectivity matrix
 #    
-# PARAMS:
+# PARAMS: 
+#     - COTSabund: standard abundance matrix for the time step
+#     - mean: mean of the size distribution of COTS adults
+#     - sd: standard deviation of size distribution
+#     - npops: number of pixels
 #    
 # RETURNS:
-#     - TotalLarvae: Total larvae produced per grid cell
+#     - TotalLarvae: Total larvae produced per pixel
 #     
 ###################
+
+COTS_Fecundity <- function(COTSabund, mean, sd, npops) {
+    
+  ### Intitialize matrix to store total eggs
+  COTS_Eggs <- vector(mode = "numeric", length = npops)
+    for (r in 1:npops) {
+        Sizes <- rnorm(COTSabund[r,'A'], mean, sd)
+        COTS_Eggs[r] <- sum(COTS_FecFromMass(COTS_MassFromDiam(Sizes)))
+    }
+    return(COTS_Eggs)
+}
+
+
+EGGS <- COTS_Fecundity(t1, 35, 10, npops)
+
 
 ###################
 # CoTS_Dispersal
 ##########
-# OBJECTIVE:
+# OBJECTIVE: To disperse larvae throughout the system based upon a connectivity matrix
 #    
 # PARAMS:
+#     - nLarvae: vector of number of larvae produced for each pixel
+#     - Conn: 13577x13577 Connectivity matrix containing proportion of original larvae reching every other cell
 #    
 # RETURNS:
 #     - 
 #     
 ###################
 
+
+###################
+# CoTS_Settlement
+##########
+# OBJECTIVE: To disperse larvae throughout the system based upon a connectivity matrix
+#    
+# PARAMS:
+#     - 
+#    
+# RETURNS:
+#     - 
+#     
+###################
+
+
 ####################
 ### COTS SANDBOX: for testing, etc.
 ####################
 
 
+#find geographic distances between all sites
+
+Pop1 <- PopData
+coordinates(Pop1) <- ~x+y
+Gdist <- gDistance(Pop1, Pop1, byid = T)
+
+Gdist[1:10,1:10]
+# scale geographic distances between 0-1
+
+# 1/((1-GDistNorm) - 0.5)
+
+
+m <- matrix(1, 3,3)
+v <- 1:3
+m*v
    ## build a very rough population transition matrix... 
 
 #  typical reproductive female is 300 mm in diameter
