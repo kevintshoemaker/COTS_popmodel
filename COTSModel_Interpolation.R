@@ -24,10 +24,13 @@
 
 setwd(DATA_DIRECTORY)
 manta <- read.csv("ltmp/manta.csv") #LTMP Manta Tow Data
-PopData <- read.table("PopData.txt", sep = "\t") #our environmental data grid 
-#we only need the ID variables for this process
-PopData <- PopData[,-c(6:38)]
+#PopData <- read.table("PopData.txt", sep = "\t") #our environmental data grid 
+PopData <- read.table("XYZGrid.txt", header = T, sep = "\t")
 
+#we only need the ID variables for this process
+#PopData <- PopData[,-c(6:38)]
+colnames(PopData)[1:2] <- c('x','y')
+PopData <- merge(PopData, RM.Sites.round1, by=c('x','y'),all=T)
 ##################
 ## 2. Summarise LTMP Data
 ##################
@@ -89,10 +92,10 @@ for(i in 1:length(COTS.interpolation.df)) COTS.interpolation.df[[i]][4] <- NULL
 COTSInterp <- Reduce(function(x,y)merge(x,y, by=c("x", "y")), COTS.interpolation.df)  
 
 #Add back in the PIXEL_ID, REEF_ID and Percetn reef
-COTSInterp <- left_join(as.data.frame(PopData), COTSInterp, by=c("x", "y"))
+#COTSInterp <- left_join(as.data.frame(PopData[,1:2]), COTSInterp, by=c("x", "y"))
 
 #rearragne order of columns
-COTSInterp <- COTSInterp[,c(1,4:5,2:3,6:38)]
+#COTSInterp <- COTSInterp[,c(1,4:5,2:3,6:38)]
 
 #write file
 setwd(DATA_DIRECTORY)

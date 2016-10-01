@@ -176,7 +176,7 @@ EGGS <- COTS_Fecundity(t1, 35, 10, npops)
 
 ###################
 # CoTS_Dispersal
-##########
+###################
 # OBJECTIVE: To disperse larvae throughout the system based upon a connectivity matrix
 #    
 # PARAMS:
@@ -187,6 +187,112 @@ EGGS <- COTS_Fecundity(t1, 35, 10, npops)
 #     - 
 #     
 ###################
+
+###################
+# CoTS_Fertilisation
+###################
+# OBJECTIVE: Determine the fertilisation success(%) at different densities of COTS (between 0-150,000)
+#    
+# PARAMS:
+#     - nLarvae: vector of number of larvae produced for each pixel
+#     - Conn: 13577x13577 Connectivity matrix containing proportion of original larvae reching every other cell
+#    
+# RETURNS:
+#     - 
+#     
+###################
+
+######
+# Define Fertilisation by distance fucntion
+#####
+
+Fert.data <- data.frame(Dist = c(0,2,4,8,16,32,64,100), PercFert = c(90,86.5, 71.8,71.9,41.5,26.8,20.5,5.8))
+
+m1 <- as.formula(PercFert ~ p * exp(k * Dist)) #standard 
+m2 <- as.formula(PercFert ~ p * exp(k * Dist) + q) #standard 
+m3 <- as.formula(PercFert ~ p * exp(k * Dist) + (92-p)) #fixed intercept of 92%
+
+em <-function(x,p,k,q) {(p*exp(k*x)) + q}
+em.fixed <-function(x,p,k,f) {(p*exp(k*x)) + (f-p)}
+em2<-function(x,p,k) {(p*exp(k*x))}
+
+
+nls1 <- nls(m1,start=list(p=80,k=-0.05), data = Fert.data)
+nls2 <- nls(m2,start=list(p=90,k=-0.05, q=10), data = Fert.data, control = list(maxiter=500))
+nls3 <- nls(m3,start=list(p=80,k=-0.05), data = Fert.data)
+
+#############
+#Retrieve best fit model parameters
+#############
+BestFitPars <- function(nls.object){
+  confints <- confint(nls.object)
+  bestpars <- nls.object$m$getPars()
+  upperpars <- confints[,2] 
+  lowerpars <- confints[,1]
+  pars <- data.frame(bestpars,upperpars,lowerpars)
+  return(pars)
+}
+
+BestFitPars(nls1)
+BestFitPars(nls2)
+BestFitPars(nls3)
+
+
+#############
+# Plot Fertilisation Function
+############
+
+Data <- Fert.data
+nls.object <- nls1
+
+nlsCIplot <- function(nls.object, Data) {
+  
+  (confints <- confint(nls.object))
+  (bestpars <- nls.object$m$getPars())
+  upperpars <- confints[,2] 
+  lowerpars <- confints[,1]
+  (pars <- data.frame(bestpars,upperpars,lowerpars))
+  
+  fit.data <- data.frame(x=seq(0,200,len=100), 
+                         best=NA, upper=NA, lower=NA)
+  fit.data$best <- em(fit.data$x, bestpars[1], bestpars[2], bestpars[3])
+  
+  fit.data$upper <- em(fit.data$x, upperpars[1], upperpars[2], upperpars[3])
+  fit.data$lower <- em(fit.data$x, lowerpars[1], lowerpars[2], lowerpars[3])
+  ggplot(fit.data, aes(y=best, x=x)) +
+    geom_line() + theme_classic() +
+    geom_ribbon(aes(ymin=lower, ymax=upper), fill='blue', alpha=0.2) +
+    geom_point(data=Data, aes(x=Dist,y=PercFert)) +
+    xlab("Distance") +
+    ylab("Percentage Eggs Fertilised") +
+    ggtitle("Fertilisation Function")
+}
+
+nlsCIplot2 <- function(nls.object, Data) {
+  
+  (confints <- confint(nls.object))
+  (bestpars <- nls.object$m$getPars())
+  upperpars <- confints[,2] 
+  lowerpars <- confints[,1]
+  (pars <- data.frame(bestpars,upperpars,lowerpars))
+  
+  fit.data <- data.frame(x=seq(0,200,len=100), 
+                         best=NA, upper=NA, lower=NA)
+  fit.data$best <- em2(fit.data$x, bestpars[1], bestpars[2])
+  
+  fit.data$upper <- em2(fit.data$x, upperpars[1], upperpars[2])
+  fit.data$lower <- em2(fit.data$x, lowerpars[1], lowerpars[2])
+  ggplot(fit.data, aes(y=best, x=x)) +
+    geom_line() + theme_classic() +
+    geom_ribbon(aes(ymin=lower, ymax=upper), fill='blue', alpha=0.2) +
+    geom_point(data=Data, aes(x=Dist,y=PercFert)) +
+    xlab("Distance") +
+    ylab("Percentage Eggs Fertilised") +
+    ggtitle("Fertilisation Function")
+}
+
+nlsCIplot(nls2, Fert.data)
+nlsCIplot2(nls1, Fert.data)
 
 
 ###################

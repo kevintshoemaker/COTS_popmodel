@@ -17,20 +17,22 @@
 ################
 
 setwd(DATA_DIRECTORY)
-reefraster <- ReadRaster("reefraster2.asc",projection=projection,plot=F)   # uses "ReadRaster" utility function 
+reefraster <- ReadRaster("reefraster001Bioregions.tif",projection=projection,plot=F)   # uses "ReadRaster" utility function 
 reefraster <- reclassify(reefraster,rcl=c(NA,NA,0, -Inf,0.5,0, 0.6,Inf,1))  # temporary layer: reclassify to binary
 compute_percentReef <- function(t,na.rm=TRUE) sum(t,na.rm)  ## aggregation function
 reefpercent <- aggregate(reefraster, fact=10, fun=compute_percentReef, expand=TRUE, na.rm=TRUE) 
 reefpercent <- reefpercent-1    # for some reason, the result ends up between 1 and 101- reformulate for proper percent
 plot(reefpercent)
 setwd(SPATIALDATA_DIRECTORY)
-writeRaster(reefpercent,filename="reefPercentRaster.asc",format="ascii",overwrite=T)   # write to file
+#writeRaster(reefpercent,filename="reefPercentRaster.asc",format="ascii",overwrite=T)   # write to file
 
 
 
 ################
 ### Create our Master Data Set - Conatins all environmetal data, Reef and Pixel ID, Coords and % Reef
 ################
+
+#### NB ENV DATA WILL BE REINTERPOLATED TO FIT THE NEW XYZ GRID FROM GBRMPA BIOREGIONS SHAPEFILE
 
 setwd(ENVDATA_DIRECTORY)    # first load the xyz data for each population of interest 
 PopData <- read.table("ENV_dataGBR.txt",header=T,sep="\t")
