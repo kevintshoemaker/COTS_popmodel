@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1475533154971.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E4548329",
+    "lastKnownWriteTime" : 28429440806879331,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "u12225lme8",
+        "caption" : "DistMat.NotFert",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=DistMat.NotFert&cache_key=u12225lme8",
+        "displayedObservations" : 412,
+        "environment" : "",
+        "object" : "DistMat.NotFert",
+        "totalObservations" : 412,
+        "variables" : 100
+    },
+    "relative_order" : 16,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

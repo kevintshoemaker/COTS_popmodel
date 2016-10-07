@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1475530917118.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "B4815692",
+    "lastKnownWriteTime" : 28429440806879331,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "9n27xgw5sy",
+        "caption" : "Females",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=Females&cache_key=9n27xgw5sy",
+        "displayedObservations" : 412,
+        "environment" : "",
+        "object" : "Females",
+        "totalObservations" : 412,
+        "variables" : 2
+    },
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

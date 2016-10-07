@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1475530918459.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "853AA2DA",
+    "lastKnownWriteTime" : 315762880,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "simh50biy8",
+        "caption" : "Males",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=Males&cache_key=simh50biy8",
+        "displayedObservations" : "0",
+        "environment" : "",
+        "object" : "Males",
+        "totalObservations" : "0",
+        "variables" : "2"
+    },
+    "relative_order" : 13,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

@@ -47,7 +47,12 @@ loadPackages <- function(){
   loadPackage("dplyr")          # data wrangling
   loadPackage("reshape2")       # data wrangling
   loadPackage("gstat")          # performing interpolation
-  }
+  loadPackage("ggplot2")        # plotting
+  loadPackage("emdbook")        # support for ecological models with data book
+  loadPackage("SpatialTools")   # compute pairwise distances
+  loadPackage("Matrix")         # Sparse matrices
+}
+
 
 
 ###################

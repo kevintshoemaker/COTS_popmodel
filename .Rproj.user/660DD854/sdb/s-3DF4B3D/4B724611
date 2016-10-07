@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1475530481238.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "4B724611",
+    "lastKnownWriteTime" : 18859025309499509,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "zotpj92h6z",
+        "caption" : "DistMat",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=DistMat&cache_key=zotpj92h6z",
+        "displayedObservations" : "412",
+        "environment" : "",
+        "object" : "DistMat",
+        "totalObservations" : "412",
+        "variables" : "100"
+    },
+    "relative_order" : 15,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

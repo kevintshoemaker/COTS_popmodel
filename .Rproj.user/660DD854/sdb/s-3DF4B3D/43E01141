@@ -1,0 +1,18 @@
+{
+    "contents" : "",
+    "created" : 1475704072171.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "43E01141",
+    "lastKnownWriteTime" : 28429440806879331,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "context" : ".GlobalEnv:::nlsCIplot2"
+    },
+    "relative_order" : 18,
+    "source_on_save" : false,
+    "type" : "r_code_browser"
+}
